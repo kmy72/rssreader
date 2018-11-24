@@ -8,7 +8,16 @@
       <h2 class="subtitle">
         Feed
       </h2>
-      <div class="links">
+      <ul>
+        <li 
+          v-for="item in data" 
+          :key="item.title">
+          <a :href="item.link">
+            {{ item.title }}
+          </a>
+        </li>
+      </ul>
+      <!-- <div class="links">
         <a
           href="https://nuxtjs.org/"
           target="_blank"
@@ -17,16 +26,33 @@
           href="https://github.com/nuxt/nuxt.js"
           target="_blank"
           class="button--grey">GitHub</a>
-      </div>
+      </div> -->
     </div>
   </section>
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
+// import Logo from '~/components/Logo.vue'
+// export default {
+//   components: {
+//     Logo
+//   }
+// }
+import axios from 'axios'
 export default {
-  components: {
-    Logo
+  asyncData({ params }, callback) {
+    axios
+      .get(`http://rssblog.ameba.jp/mourin-24/rss20.xml`)
+      .then(res => {
+        var parseString = require('xml2js').parseString
+        var xml = res.data
+        parseString(xml, (message, xmlres) => {
+          callback(null, { data: xmlres.rss.channel[0].item })
+        })
+      })
+      .catch(e => {
+        callback({ statusCode: 404, message: 'ページが見つかりません' })
+      })
   }
 }
 </script>
